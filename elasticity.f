@@ -6,6 +6,8 @@
 limit cells constant /column
 
 create foreignKeys  /column allot
+create handlers     /column allot
+
 variable #records
 
 : 0elasticity ( -- )
@@ -20,8 +22,14 @@ variable #records
 : -exists ( fk -- fk )
   0 begin dup #records @ < while -match 1+ repeat drop ;
 
+: default ( fk1 fk2 -- )
+  2drop ;
+
+: handler! ( -- )
+  ['] default #records @ cells handlers + ! ;
+
 : elastic ( fk -- )
-  -exists fk! 1 #records +! ;
+  -exists fk! handler! 1 #records +! ;
 
 : x ( dx x -- dx' x' )
   dup 751 > if 751 swap - 751 +  swap abs negate swap then
@@ -60,7 +68,6 @@ variable #records
   2dup intersection? -rot swap intersection? or ;
 
 : pPreserved ( fk1 fk2 -- )
-  2dup colliding? 0= if 2drop exit then
   2dup swap >r >r velocity rot velocity r> mobile r> mobile ;
 
 : fk@ ( i -- fk )
@@ -73,12 +80,26 @@ variable #records
   dup -1 = if 2drop r> drop then
   over -1 = if 2drop r> drop then ;
 
+: -match ( fk i -- fk i )
+  2dup fk@ = if nip cells r> drop then ;
+
+: row ( fk -- ofs )
+  0 begin dup #records @ < while -match 1+ repeat
+  abort" elasticity: inelastic object used" ;
+
+: notify ( fk fk -- )
+  dup row handlers + @ execute ;
+
 : col3 ( i j -- )
-  keys +valid 2dup colliding? if 2dup pPreserved then 2drop ;
+  keys +valid 2dup colliding? if
+  2dup pPreserved 2dup notify then 2drop ;
 
 : col2 ( i -- )
   dup 1+ begin dup #records @ < while 2dup col3 1+ repeat 2drop ;
 
 : collided ( -- )
   0 begin dup #records @ < while dup col2 1+ repeat drop ;
+
+: onCollide ( xt fk -- )
+  row handlers + ! ;
 

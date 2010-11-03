@@ -144,5 +144,18 @@ variable p
 
 : te8   te8.1 ;
 
-: te    te0 te1 te2 te3 te4 te5 te6 te7 te8  depth abort" te: depth" ;
+variable #callbacks
+: redist    2drop 1 #callbacks +! ;
+: s         0objects 0elasticity 0mobility 0positionables
+            object o ! object p !
+            16 16 o @ positioned 10 20 o @ mobile o @ elastic
+            16 31 p @ positioned 20 10 p @ mobile p @ elastic
+            ['] redist o @ onCollide ['] redist p @ onCollide
+            #callbacks off ;
+
+: te9.1     s   collided  #callbacks @ 1 <> abort" te9.1 callback" ;
+
+: te9       te9.1 ;
+
+: te    te0 te1 te2 te3 te4 te5 te6 te7 te8 te9 depth .s abort" te: depth" ;
 

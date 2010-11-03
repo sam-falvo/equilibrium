@@ -112,6 +112,7 @@ decimal
   begin dup while over c@ written 1 /string repeat 2drop ;
 
 : scoreboard ( fk -- )
-  drop  0 penX ! 0 penY !  S" !#$%& 0" labelled
+  drop  0 penX ! 0 penY !  S" !#$%& " labelled
+  &human @ score s>d <# 32 hold #s #> labelled
   controls s>d <# 32 hold # # # #> labelled  ;
 

@@ -6,12 +6,12 @@ include workstation
 include wrapped-draw
 include mersenne
 include viewable
-include scoreboard
 include objects
 include positionable
 include mobility
 include elasticity
 include players
+include scoreboard
 
 variable done
 

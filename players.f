@@ -2,6 +2,66 @@
 \ *************************************************************
 \ Implements player logic, both AI and human.
 
+100 constant limit
+limit cells constant /column
+
+create foreignKeys  /column allot
+create scores       /column allot
+
+variable #records
+
+: 0players ( -- )
+  0 #records !  foreignKeys /column -1 fill ;
+
+: fk! ( fk -- )
+  #records @ cells foreignKeys + ! ;
+
+: fk@ ( i -- )
+  cells foreignKeys + @ ;
+
+: -match ( fk i -- fk i )
+  2dup fk@ = if 2drop 2r> 2drop then ;
+
+: -exists ( fk -- fk )
+  0 begin dup #records @ < while -match 1+ repeat drop ;
+
+: score! ( -- )
+  #records @ cells scores + off ;
+
+: player ( fk -- )
+  -exists fk! score! 1 #records +! ;
+
+: -match ( fk i -- fk i )
+  2dup fk@ = if nip cells r> drop then ;
+
+: row ( fk -- ofs )
+  0 begin dup #records @ < while -match 1+ repeat
+  abort" players: attempt to access non-existant player" ;
+
+: score ( fk -- )
+  row scores + @ ;
+
+: any ( -- ofs )
+  begin probability 29 lshift dup #records @ u< if cells exit then drop
+  again ;
+
+: assigned ( -- )
+  10000 any scores + ! ;
+
+: rows ( fk1 fk2 -- ofs1 ofs2 )
+  row swap row ;
+
+: score@ ( ofs -- u )
+  scores + @ ;
+
+: scored ( u fk -- )
+  row scores + ! ;
+
+: redistributed ( fk1 fk2 -- )
+  2dup score swap score + 2/ dup >r swap scored r> swap scored ;
+
+
+
 16 constant /side
 
 variable &human
@@ -21,9 +81,34 @@ variable &human
 : adj ( -- )
   &human @ velocity controls up lf dn rt drop &human @ mobile ;
 
-: _render ( fk -- )
+: body ( fk -- )
   dup position origin  position /side + swap /side + swap extent
   rectangle ;
+
+: +valid ( n r -- n r )
+  dup cells foreignKeys + @ -1 = if r> drop then ;
+
+: considered ( n r -- n' r )
+  +valid dup cells scores + @ rot max swap ;
+
+: highest ( -- n )
+  0 0 begin dup #records @ < while considered 1+ repeat drop ;
+
+: -highest? ( n -- )
+  highest <> ;
+
+: +highest ( fk -- fk )
+  dup score -highest? if r> 2drop then ;
+
+: flag ( fk -- )
+  +highest
+  dup position 4 + swap 4 + ox ! oy !
+  dup position 12 + swap 12 + dx ! dy ! line
+  dup position 4 + swap 12 + ox ! oy !
+  position 12 + swap 4 + dx ! dy ! line ;
+
+: _render ( fk -- )
+  dup body flag ;
 
 : x ( -- 2 <= n < 750 )
   probability abs 766 /side - mod 2 + ;
@@ -48,6 +133,8 @@ variable &human
   coordinates r@ positioned
   vector r@ mobile
   r@ elastic
+  ['] redistributed r@ onCollide
+  r@ player
   ['] _render r@ viewable
   probability $FFFF and r@ colored
   r> ;
@@ -62,5 +149,5 @@ variable &human
   0 do bot loop ;
 
 : players ( -- )
-  human 4 bots ;
+  human 4 bots assigned ;
 
