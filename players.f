@@ -78,7 +78,7 @@ variable &human
 : rt ( vx vy n -- vx vy n )
   dup 8 and if rot 1+ -rot then ;
 
-: adj ( -- )
+: respond ( -- )
   &human @ velocity controls up lf dn rt drop &human @ mobile ;
 
 : body ( fk -- )
@@ -140,7 +140,8 @@ variable &human
   r> ;
 
 : human ( -- )
-  vehicle &human ! ;
+  vehicle &human ! 
+  ['] respond &human @ behaves ;
 
 : bot ( -- )
   vehicle drop ;
