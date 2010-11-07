@@ -23,5 +23,12 @@ variable obj456
 
 : tb0   tb0.1 tb0.2 tb0.3 ;
 
-: tb    tb0 depth abort" tb: depth" ;
+: s         0behaviors ['] _cb 123 behaves ;
+: tb1.1     s   123 hasBehavior? 0= abort" tb1.1 behavior expected" ;
+: tb1.2     s   123 unresponsive
+                123 hasBehavior? abort" tb1.2 behavior not expected" ;
+
+: tb1   tb1.1 tb1.2 ;
+
+: tb    tb0 tb1 depth abort" tb: depth" ;
 

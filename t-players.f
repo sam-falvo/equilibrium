@@ -10,6 +10,7 @@ include positionable
 include mobility
 include elasticity
 include viewable
+include behaviors
 include players
 
 : s         0players 1234 seeded 123 player ;

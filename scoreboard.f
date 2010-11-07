@@ -41,10 +41,10 @@ create segmentTable
     00111111 ( $24 $ O ) c,
     11110011 ( $25 % R ) c,
     01111001 ( $26 & E ) c,
-    00000000 ( $27 ' illegal ) c,
-    00000000 ( $28 ( illegal ) c,
-    00000000 ( $29 ] illegal ) c,
-    00000000 ( $2A * illegal ) c,
+    01110011 ( $27 ' P ) c,
+    00111000 ( $28 ( L ) c,
+    01110111 ( $29 ] A ) c,
+    01101110 ( $2A * Y ) c,
     00000000 ( $2B + illegal ) c,
     00000000 ( $2C , illegal ) c,
     00000000 ( $2D - illegal ) c,
@@ -111,8 +111,35 @@ decimal
 : labelled ( caddr u -- )
   begin dup while over c@ written 1 /string repeat 2drop ;
 
-: scoreboard ( fk -- )
+variable _human
+
+: _score ( fk -- )
   drop  0 penX ! 0 penY !  S" !#$%& " labelled
-  &human @ score s>d <# 32 hold #s #> labelled
+  _human @ score s>d <# 32 hold #s #> labelled
   controls s>d <# 32 hold # # # #> labelled  ;
+
+variable &clock
+
+: _clock ( fkUnused -- )
+  drop 768 40 - penX ! 0 penY !
+  &clock @ @ s>d <# # # #> labelled ;
+
+: clock ( pv -- )
+  &clock !  object dup ['] _clock swap viewable
+  $FFE0 swap colored ;
+
+variable greeting
+
+: _greet ( fk -- )
+  drop  192 penX ! 192 penY ! S" '%&55 ) 70 '()*" labelled ;
+
+: scoreboard ( fk -- )
+  _human !  ['] _score object viewable
+  object greeting !  ['] _greet greeting @ viewable ;
+
+: engaged ( -- )
+  greeting @ unviewable ;
+
+: greeted ( -- )
+  ['] _greet greeting @ viewable ;
 

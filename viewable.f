@@ -15,47 +15,83 @@ variable #records
 : 0viewable ( -- )
   0 #records !  foreignKeys /column -1 fill ;
 
-: +spacious ( xt fk -- xt fk )
-  #records @ limit < if exit then r> drop 2drop ;
+\
+\ Generic accessors
+\
 
-: fk! ( fk r -- )
-  cells foreignKeys + ! ;
-
-: fk@ ( r -- fk )
+: fk@ ( i -- fk )
   cells foreignKeys + @ ;
 
-: renderer! ( xt r -- )
-  cells renderers + ! ;
+: fk! ( fk i -- )
+  cells foreignKeys + ! ;
+
+: fk0 ( fk -- )
+  #records @ fk! ;
 
 : renderer@ ( r -- xt )
   cells renderers + @ ;
 
+: renderer! ( xt r -- )
+  cells renderers + ! ;
+
+: renderer0 ( xt -- )
+  #records @ renderer! ;
+
 : color@ ( r -- u )
   cells colors + @ ;
 
-: 0color ( r -- )
-  $FFFF swap cells colors + ! ;
+: color! ( u r -- )
+  cells colors + ! ;
+
+: color0 ( -- )
+  $FFFF #records @ color! ;
+
+\
+\ viewable
+\
+
+: -match ( xt fk i -- xt fk i )
+  2dup fk@ = if nip renderer! 2r> 2drop then ;
+
+: -exists ( xt fk -- xt fk )
+  0 begin dup #records @ < while -match 1+ repeat drop ;
+
+: +spacious ( -- )
+  #records @ limit >= abort" viewable: attempt to view too many objects" ;
 
 : viewable ( xt fk -- )
-  +spacious #records @ swap over 0color over fk! renderer! 1 #records +! ;
+  -exists +spacious fk0 renderer0 color0 1 #records +! ;
 
-: +valid ( r -- r )
-  dup fk@ -1 = if drop r> drop then ;
+\
+\ drawn
+\
 
 : draw ( r -- )
-  +valid dup color@ unsafe-color! dup fk@ swap renderer@ execute ;
+  dup color@ unsafe-color! dup fk@ swap renderer@ execute ;
 
 : drawn ( -- )
   0 begin dup #records @ < while dup draw 1+ repeat drop ;
 
-: nulled ( r -- )
-  -1 swap fk! ;
+\
+\ unviewable
+\
+
+: collapsed ( ofs base -- )
+  over >r + dup cell+ swap /column r> cell+ - move ;
+
+: delisted ( r -- )
+  cells >r r@ foreignKeys collapsed  r@ renderers collapsed
+  r> colors collapsed  -1 #records +! ;
 
 : -match ( fk r -- fk r )
-  2dup fk@ = if nulled drop r> drop then ;
+  2dup fk@ = if nip delisted r> drop then ;
 
 : unviewable ( fk -- )
   0 begin dup #records @ < while -match 1+ repeat drop ;
+
+\
+\ color
+\
 
 : -match ( u fk i -- u fk i )
   2dup cells foreignKeys + @ = if nip cells colors + @ 2r> 2drop then ;
@@ -66,6 +102,9 @@ variable #records
 : color ( fk -- u )
   -exists abort" viewable.f: attempt to get color on unviewable object" ;
 
+\
+\ colored
+\
 : -match ( u fk i -- u fk i )
   2dup cells foreignKeys + @ = if nip cells colors + ! 2r> 2drop then ;
 
@@ -74,4 +113,17 @@ variable #records
 
 : colored ( u fk -- )
   -exists abort" viewable.f: attempt to set color on unviewable object" ;
+
+\
+\ isViewable?
+\
+
+: -match ( fk i -- fk i )
+  2dup cells foreignKeys + @ = if 2drop -1 2r> 2drop then ;
+
+: -exists ( fk -- fk )
+  0 begin dup #records @ < while -match 1+ repeat drop ;
+
+: isViewable? ( fk -- f )
+  -exists drop 0 ;
 

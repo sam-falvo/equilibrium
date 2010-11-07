@@ -12,6 +12,10 @@ create actions      /column allot
 : 0behaviors ( -- )
   0 #records !  foreignKeys /column -1 fill ;
 
+\
+\ behaves
+\
+
 : fk! ( fk -- )
   #records @ cells foreignKeys + ! ;
 
@@ -30,9 +34,46 @@ create actions      /column allot
 : behaves ( xt fk -- )
   -exists fk! action! 1 #records +! ;
 
+\
+\ acted
+\
+
 : behaved ( i -- )
   cells dup foreignKeys + @ swap actions + @ execute ;
 
 : acted ( -- )
   0 begin dup #records @ < while dup behaved 1+ repeat drop ;
+
+\
+\ hasBehavior?
+\
+
+: -match ( fk i -- fk i )
+  2dup cells foreignKeys + @ = if 2drop -1 2r> 2drop then ;
+
+: -exists ( fk -- fk )
+  0 begin dup #records @ < while -match 1+ repeat drop ;
+
+: hasBehavior? ( fk -- f )
+  -exists drop 0 ;
+
+\
+\ unresponsive
+\
+
+: collapsed ( ofs base -- )
+  over >r + dup cell+ swap /column r> cell+ - move ;
+
+: delisted ( i -- )
+  cells >r r@ foreignKeys collapsed  r> actions collapsed
+  -1 #records +! ;
+
+: -match ( fk i -- fk i )
+  2dup cells foreignKeys + @ = if nip delisted 2r> 2drop then ;
+
+: -exists ( fk -- fk )
+  0 begin dup #records @ < while -match 1+ repeat drop ;
+
+: unresponsive ( fk -- )
+  -exists drop ;
 

@@ -64,7 +64,6 @@ variable #records
 
 16 constant /side
 
-variable &human
 
 : up ( vx vy n -- vx vy n )
   dup 1 and if >r 1- r> then ;
@@ -77,9 +76,6 @@ variable &human
 
 : rt ( vx vy n -- vx vy n )
   dup 8 and if rot 1+ -rot then ;
-
-: respond ( -- )
-  &human @ velocity controls up lf dn rt drop &human @ mobile ;
 
 : body ( fk -- )
   dup position origin  position /side + swap /side + swap extent
@@ -139,16 +135,32 @@ variable &human
   probability $FFFF and r@ colored
   r> ;
 
-: human ( -- )
-  vehicle &human ! 
-  ['] respond &human @ behaves ;
-
 : bot ( -- )
   vehicle drop ;
 
 : bots ( -- )
   0 do bot loop ;
 
-: players ( -- )
-  human 4 bots assigned ;
+\
+\ inhibited
+\
+
+: maintain ( fk1 kf2 -- )
+  2drop ;
+
+: prevented ( i -- )
+  ['] maintain over cells foreignKeys + @ onCollide ;
+
+: inhibited ( -- )
+  0 begin dup #records @ < while prevented 1+ repeat drop ;
+
+\
+\ uninhibited
+\
+
+: encouraged ( i -- )
+  ['] redistributed over cells foreignKeys + @ onCollide ;
+
+: uninhibited ( -- )
+  0 begin dup #records @ < while encouraged 1+ repeat drop ;
 
