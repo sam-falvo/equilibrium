@@ -46,7 +46,7 @@ defer _timeup ( fkUnused -- )
 
 : playing ( -- )
   uninhibited  60 &timer !  &goc @ unresponsive  armed
-  ['] respond &human @ behaves  engaged ;
+  ['] respond &human @ behaves  engaged  rescored ;
 
 : (_goc) ( fkUnused -- )
   drop  controls 2 = if playing then ;

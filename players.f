@@ -164,3 +164,13 @@ variable #records
 : uninhibited ( -- )
   0 begin dup #records @ < while encouraged 1+ repeat drop ;
 
+\
+\ rescored
+\
+
+: zeroed ( i -- )
+  0 over cells foreignKeys + @ scored ;
+
+: rescored ( -- )
+  0 begin dup #records @ < while zeroed 1+ repeat drop assigned ;
+
