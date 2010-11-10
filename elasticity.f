@@ -10,8 +10,16 @@ create handlers     /column allot
 
 variable #records
 
+\
+\ 0elasticity
+\
+
 : 0elasticity ( -- )
   0 #records !  foreignKeys /column -1 fill ;
+
+\
+\ elastic
+\
 
 : fk! ( fk -- )
   #records @ cells foreignKeys + ! ;
@@ -30,6 +38,10 @@ variable #records
 
 : elastic ( fk -- )
   -exists fk! handler! 1 #records +! ;
+
+\
+\ confined
+\
 
 : x ( dx x -- dx' x' )
   dup 751 > if 751 swap - 751 +  swap abs negate swap then
@@ -52,20 +64,40 @@ variable #records
   0 begin dup #records @ < while dup cells rebounded 1+ repeat
   drop ;
 
-: v ( y1 y2 -- f )
-  swap dup 16 + within ;
+\
+\ colliding?
+\
 
-: h ( x1 x2 -- f )
-  swap dup 16 + within ;
+: right ( fk -- r )
+  dup width swap xPosition + 1- ;
 
-: overlapping? ( x1 y1 x2 y2 -- f )
-  >r swap r> v -rot h and ;
+: bottom ( fk -- b )
+  dup height swap yPosition + 1- ;
 
-: intersection? ( fk1 fk2 -- f )
-  >r position r> position overlapping? ;
+: l ( fk1 fk2 -- l )
+  xPosition swap xPosition max ;
+
+: r ( fk1 fk2 -- r )
+  right swap right min ;
+
+: t ( fk1 fk2 -- t )
+  yPosition swap yPosition max ;
+
+: b ( fk1 fk2 -- b )
+  bottom swap bottom min ;
+
+: intersection ( fk1 fk2 -- l r t b )
+  2dup l -rot 2dup r -rot 2dup t -rot b ;
+
+: isRectangle? ( l r t b -- f )
+  <= -rot <= and ;
 
 : colliding? ( fk1 fk2 -- f )
-  2dup intersection? -rot swap intersection? or ;
+  intersection isRectangle? ;
+
+\
+\ collided
+\
 
 : pPreserved ( fk1 fk2 -- )
   2dup swap >r >r velocity rot velocity r> mobile r> mobile ;
@@ -99,6 +131,10 @@ variable #records
 
 : collided ( -- )
   0 begin dup #records @ < while dup col2 1+ repeat drop ;
+
+\
+\ onCollide
+\
 
 : onCollide ( xt fk -- )
   row handlers + ! ;

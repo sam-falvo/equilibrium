@@ -57,9 +57,47 @@ variable #records
 : scored ( u fk -- )
   row scores + ! ;
 
+: expired ( fk -- )
+  dup unpositioned dup immobile dup unviewable dup lax destroyed ;
+
+: +onscreen ( x y -- x y )
+  dup 0 767 within 0= if 2drop r> drop then
+  over 0 767 within 0= if 2drop r> drop then ;
+
+: _spark ( fk -- )
+  position +onscreen plotted ;
+
+: vx ( -- -8 <= vx <= 7 )
+  probability 29 rshift ;
+
+: vy ( -- -8 <= vx <= 7 )
+  probability 29 rshift ;
+
+: vector ( -- vX vY )
+  vx vy ;
+
+: frames ( -- 0 <= n <= 7 )
+  probability 27 rshift abs ;
+
+: spark ( x y -- )
+  object dup >r positioned
+  vector r@ mobile
+  ['] _spark r@ viewable
+\ probability $FFFF and r@ colored
+  ['] expired frames r@ punctual
+  r> drop ;
+
+: centroid ( l r t b -- x y )
+  + 2/ -rot + 2/ swap ;
+
+: sparks ( fk1 fk2 -- )
+  intersection centroid probability 27 rshift 0 ?do 2dup spark loop 2drop ;
+
 : redistributed ( fk1 fk2 -- )
   2dup score swap score + 2/ dup >r swap scored r> swap scored ;
 
+: _kapow ( fk1 fk2 -- )
+  2dup sparks redistributed ;
 
 
 16 constant /side
@@ -115,21 +153,13 @@ variable #records
 : coordinates ( -- x y )
   x y ;
 
-: vx ( -- -8 <= vx <= 7 )
-  probability 29 rshift ;
-
-: vy ( -- -8 <= vx <= 7 )
-  probability 29 rshift ;
-
-: vector ( -- vX vY )
-  vx vy ;
-
 : vehicle ( -- )
   object >r
   coordinates r@ positioned
+  /side /side r@ dimensioned
   vector r@ mobile
   r@ elastic
-  ['] redistributed r@ onCollide
+  ['] _kapow r@ onCollide
   r@ player
   ['] _render r@ viewable
   probability $FFFF and r@ colored
@@ -146,7 +176,7 @@ variable #records
 \
 
 : maintain ( fk1 kf2 -- )
-  2drop ;
+  sparks ;
 
 : prevented ( i -- )
   ['] maintain over cells foreignKeys + @ onCollide ;
@@ -159,7 +189,7 @@ variable #records
 \
 
 : encouraged ( i -- )
-  ['] redistributed over cells foreignKeys + @ onCollide ;
+  ['] _kapow over cells foreignKeys + @ onCollide ;
 
 : uninhibited ( -- )
   0 begin dup #records @ < while encouraged 1+ repeat drop ;

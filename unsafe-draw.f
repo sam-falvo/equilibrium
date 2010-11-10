@@ -125,3 +125,10 @@ create linetab
 : line0         x0<x1  dx>dy? 1 and  y1>y0? 2 and or cells
                 linetab + @ execute ;
 
+\
+\ plotted
+\
+
+: plotted ( x y -- )
+  y0 ! x0 ! color @ address w! ;
+

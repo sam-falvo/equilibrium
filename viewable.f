@@ -87,7 +87,7 @@ variable #records
   2dup fk@ = if nip delisted r> drop then ;
 
 : unviewable ( fk -- )
-  0 begin dup #records @ < while -match 1+ repeat drop ;
+  0 begin dup #records @ < while -match 1+ repeat 2drop ;
 
 \
 \ color

@@ -24,6 +24,7 @@ library libSDL-1.2.so.0
     function: SDL_PollEvent ( pEvent -- n )
     function: SDL_Delay ( uMillies -- )
     function: SDL_GetError ( -- psz )
+    function: SDL_GetTicks ( -- u )
 
 library libc.so.6
     function: strlen ( psz -- n )
@@ -123,6 +124,11 @@ variable &controls
 : notified ( -- )
   begin event SDL_PollEvent 0= if exit then updated again ;
 
-: synced ( uMillies -- )
-  notified SDL_Delay ;
+variable &time
+
+: padding ( -- uMillies )
+  33 SDL_GetTicks &time @ - - 0 max 33 min ;
+
+: synced ( -- )
+  notified padding SDL_Delay SDL_GetTicks &time ! ;
 

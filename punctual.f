@@ -21,13 +21,13 @@ variable #records
 \ punctual
 \
 
-: matched ( uDelay fk i -- )
-  cells delays + nip ! ;
+: matched ( xt uDelay fk i -- )
+  cells nip swap over delays + ! callbacks + ! ;
 
-: -match ( uDelay fk i -- uDelay fk i )
+: -match ( xt uDelay fk i -- xt uDelay fk i )
   2dup cells foreignKeys + @ = if matched 2r> 2drop then ;
 
-: -exists ( uDelay fk -- uDelay fk )
+: -exists ( xt uDelay fk -- xt uDelay fk )
   0 begin dup #records @ < while -match 1+ repeat drop ;
 
 : +spacious ( -- )
@@ -44,6 +44,26 @@ variable #records
 
 : punctual ( xt uDelay fk -- )
   -exists +spacious fk! delay! callback! 1 #records +! ;
+
+\
+\ lax
+\
+
+: collapsed ( base ofs -- )
+  /column over cell+ - -rot + dup cell+ swap rot move ;
+
+: delisted ( ofs -- )
+  foreignKeys over collapsed delays over collapsed
+  callbacks swap collapsed  -1 #records +! ;
+
+: -match ( fk ofs -- fk ofs )
+  2dup foreignKeys + @ = if nip delisted 2r> 2drop then ;
+
+: -exists ( fk -- fk )
+  0 begin dup #records @ cells < while -match cell+ repeat drop ;
+
+: lax ( fk -- )
+  -exists drop ;
 
 \
 \ isPunctual?

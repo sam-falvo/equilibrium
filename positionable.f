@@ -10,8 +10,16 @@ create xs               /column allot
 create ys               /column allot
 variable #records
 
+\
+\ 0positionables
+\
+
 : 0positionables ( -- )
   0 #records !  foreignKeys /column -1 fill ;
+
+\
+\ positioned
+\
 
 : +spacious ( -- )
   #records @ limit >= abort" positionable.f: out of rows" ;
@@ -37,6 +45,30 @@ variable #records
 : positioned ( x y fk -- )
   +spacious -exists  fk! y! x!  1 #records +! ;
 
+\
+\ unpositioned
+\
+
+: collapsed ( base ofs -- )
+  /column over cell+ - -rot + dup cell+ swap rot move ;
+
+: delisted ( ofs -- )
+  foreignKeys over collapsed xs over collapsed ys swap collapsed
+  -1 #records +! ;
+
+: -match ( fk ofs -- fk ofs )
+  2dup foreignKeys + @ = if nip delisted 2r> 2drop then ;
+
+: -exists ( fk -- fk )
+  0 begin dup #records @ cells < while -match cell+ repeat drop ;
+
+: unpositioned ( fk -- )
+  -exists drop ;
+
+\
+\ position
+\
+
 : -match ( fk ofs -- fk ofs )
   2dup foreignKeys + @ = if nip r> drop then ;
 
@@ -47,6 +79,10 @@ variable #records
 : position ( fk -- x y )
   row dup xs + @ swap ys + @ ;
 
+\
+\ translated
+\
+
 : -match ( fk ofs -- fk ofs )
   2dup foreignKeys + @ = if 2drop -1 r> drop then ;
 
@@ -55,6 +91,10 @@ variable #records
 
 : translated ( dx dy fk -- )
   row swap over ys + +! xs + +! ;
+
+\
+\ getters/setters
+\
 
 : xPosition ( fk -- x )
   row xs + @ ;

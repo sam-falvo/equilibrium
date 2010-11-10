@@ -8,14 +8,18 @@ limit cells constant /column
 create foreignKeys  /column allot
 create vXs          /column allot   ( velocity components )
 create vYs          /column allot
-create vXFractions  /column allot   ( fractionals of velocity )
-create vYFractions  /column allot
-create aXs          /column allot   ( acceleration components )
-create aYs          /column allot
 variable #records
+
+\
+\ 0mobility
+\
 
 : 0mobility ( -- )
   0 #records !  foreignKeys /column -1 fill ;
+
+\
+\ mobile
+\
 
 : fk! ( fk -- )
   #records @ cells foreignKeys + ! ;
@@ -42,15 +46,33 @@ variable #records
   dup hasPosition? 0=
   abort" mobility.f: Mobile objects must have position" ;
 
-: 0fractions ( -- )
-  #records @ cells aXs + off
-  #records @ cells aYs + off
-  #records @ cells vXFractions + off
-  #records @ cells vYFractions + off ;
-
 : mobile ( vX vY fk -- )
   +positionable -exists +spacious fk! vY! vx!
-  0fractions 1 #records +! ;
+  1 #records +! ;
+
+\
+\ immobile
+\
+
+: collapsed ( base ofs -- )
+  /column over cell+ - -rot + dup cell+ swap rot move ;
+
+: delisted ( ofs -- )
+  foreignKeys over collapsed vXs over collapsed vYs swap collapsed
+  -1 #records +! ;
+
+: -match ( fk ofs -- fk ofs )
+  2dup foreignKeys + @ = if nip delisted 2r> 2drop then ;
+
+: -exists ( fk -- fk )
+  0 begin dup #records @ cells < while -match cell+ repeat drop ;
+
+: immobile ( fk -- )
+  -exists drop ;
+
+\
+\ velocity
+\
 
 : -match ( fk ofs -- fk ofs )
   2dup foreignKeys + @ = if nip r> drop then ;
@@ -61,6 +83,10 @@ variable #records
 
 : velocity ( fk -- vX vY )
   row dup vXs + @ swap vYs + @ ;
+
+\
+\ moved
+\
 
 : scooted ( ofs -- )
   >r vXs r@ + @  vYs r@ + @  foreignKeys r> + @  translated ;
@@ -73,6 +99,10 @@ variable #records
 
 : moved ( -- )
   0 begin dup #records @ < while dup cells adjusted 1+ repeat drop ;
+
+\
+\ getters/setters
+\
 
 : xVelocity ( fk -- vx )
   row vXs + @ ;

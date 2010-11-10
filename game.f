@@ -9,11 +9,12 @@ include viewable
 include objects
 include positionable
 include mobility
+include dimensionable
 include elasticity
 include behaviors
+include punctual
 include players
 include scoreboard
-include punctual
 
 variable done
 variable &goc
@@ -40,7 +41,7 @@ defer _timeup ( fkUnused -- )
   ['] _timeup duration &goc @ punctual ;
 
 : (_timeup) ( fkUnused -- )
-  drop  &timer @ 1- dup &timer ! if armed exit then disengaged ;
+  drop &timer @ 1- dup &timer ! if armed exit then disengaged ;
 
 ' (_timeup) is _timeup
 
@@ -60,8 +61,25 @@ defer _timeup ( fkUnused -- )
 \ Main loop iteration
 \
 
+: d(   s" depth >r" evaluate ; immediate
+: z)   s" depth r> <> z" evaluate ; immediate
+: y)   s" depth r> <> y" evaluate ; immediate
+: x)   s" depth r> <> x" evaluate ; immediate
+: w)   s" depth r> <> w" evaluate ; immediate
+: v)   s" depth r> <> v" evaluate ; immediate
+: u)   s" depth r> <> u" evaluate ; immediate
+: t)   s" depth r> <> t" evaluate ; immediate
+: z     abort" drawn depth" ;
+: y     abort" moved depth" ;
+: x     abort" collided depth" ;
+: w     abort" confined depth" ;
+: v     abort" acted depth" ;
+: u     abort" synced depth" ;
+: t     abort" elapsed depth" ;
+
 : frame ( -- )
-  black drawn moved collided confined acted 33 synced elapsed ;
+  black d( drawn z) d( moved y) d( collided x) d( confined w)
+  d( acted v) d( synced u) d( elapsed t) ;
 
 \
 \ Playfield
@@ -95,9 +113,12 @@ defer _timeup ( fkUnused -- )
 
 : check   key? if key drop done on then ;
 
-: game ( -- )
+: init'd ( -- )
   0viewable 0objects 0positionables 0mobility
   0elasticity 0behaviors 0players 0punctual
-  presented  done off  configured
+  0dimensions ;
+
+: game ( -- )
+  init'd  presented  done off  configured
   begin frame check flip done @ until  hidden ;
 

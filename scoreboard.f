@@ -115,17 +115,16 @@ variable _human
 
 : _score ( fk -- )
   drop  0 penX ! 0 penY !  S" !#$%& " labelled
-  _human @ score s>d <# 32 hold #s #> labelled
-  controls s>d <# 32 hold # # # #> labelled  ;
+  _human @ score s>d <# 32 hold #s #> labelled ;
 
-variable &clock
+variable &&clock
 
 : _clock ( fkUnused -- )
   drop 768 40 - penX ! 0 penY !
-  &clock @ @ s>d <# # # #> labelled ;
+  &&clock @ @ s>d <# # # #> labelled ;
 
 : clock ( pv -- )
-  &clock !  object dup ['] _clock swap viewable
+  &&clock !  object dup ['] _clock swap viewable
   $FFE0 swap colored ;
 
 variable greeting

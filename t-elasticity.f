@@ -5,13 +5,17 @@
 include objects
 include positionable
 include mobility
+include dimensionable
 include elasticity
 
 variable o
 variable p
 
+: owh       16 16 o @ dimensioned ;
+: pwh       16 16 p @ dimensioned ;
+
 : s         0objects 0elasticity 0mobility 0positionables object o !
-            749 50 o @ positioned 7 7 o @ mobile o @ elastic
+            749 50 o @ positioned 7 7 o @ mobile owh o @ elastic
             moved confined ;
 : te0.1     s   o @ position
                 57 <> abort" te0.1 y mismatch"
@@ -23,7 +27,7 @@ variable p
 : te0   te0.1 ;
 
 : s         0objects 0elasticity 0mobility 0positionables object o !
-            4 50 o @ positioned -7 7 o @ mobile o @ elastic
+            4 50 o @ positioned -7 7 o @ mobile owh o @ elastic
             moved confined ;
 : te1.1     s   o @ position
                 57 <> abort" te1.1 y mismatch"
@@ -35,7 +39,7 @@ variable p
 : te1   te1.1 ;
 
 : s         0objects 0elasticity 0mobility 0positionables object o !
-            50 749 o @ positioned 7 7 o @ mobile o @ elastic
+            50 749 o @ positioned 7 7 o @ mobile owh o @ elastic
             moved confined ;
 : te2.1     s   o @ position
                 746 <> abort" te2.1 y mismatch"
@@ -47,7 +51,7 @@ variable p
 : te2   te2.1 ;
 
 : s         0objects 0elasticity 0mobility 0positionables object o !
-            50 43 o @ positioned 7 -7 o @ mobile o @ elastic
+            50 43 o @ positioned 7 -7 o @ mobile owh o @ elastic
             moved confined ;
 : te3.1     s   o @ position
                 44 <> abort" te3.1 y mismatch"
@@ -59,7 +63,7 @@ variable p
 : te3   te3.1 ;
 
 : s         0objects 0elasticity 0mobility 0positionables object o !
-            749 43 o @ positioned 7 -7 o @ mobile o @ elastic
+            749 43 o @ positioned 7 -7 o @ mobile owh o @ elastic
             moved confined ;
 : te4.1     s   o @ position
                 44 <> abort" te4.1 y mismatch"
@@ -71,7 +75,7 @@ variable p
 : te4   te4.1 ;
 
 : s         0objects 0elasticity 0mobility 0positionables object o !
-            2 750 o @ positioned -7 7 o @ mobile o @ elastic
+            2 750 o @ positioned -7 7 o @ mobile owh o @ elastic
             moved confined ;
 : te5.1     s   o @ position
                 745 <> abort" te5.1 y mismatch"
@@ -84,8 +88,8 @@ variable p
 
 : s         0objects 0elasticity 0mobility 0positionables
             object o ! object p !
-            16 16 o @ positioned 20 10 o @ mobile o @ elastic
-            30 16 p @ positioned 10 10 p @ mobile p @ elastic ;
+            16 16 o @ positioned 20 10 o @ mobile owh o @ elastic
+            30 16 p @ positioned 10 10 p @ mobile pwh p @ elastic ;
 : te6.1     s   o @ p @ colliding? 0= abort" te6.1 collision detect" ;
 : te6.2     s   depth >r o @ p @ pPreserved
                 o @ position
@@ -105,8 +109,8 @@ variable p
 
 : s         0objects 0elasticity 0mobility 0positionables
             object o ! object p !
-            16 16 o @ positioned 10 20 o @ mobile o @ elastic
-            16 31 p @ positioned 20 10 p @ mobile p @ elastic ;
+            16 16 o @ positioned 10 20 o @ mobile owh o @ elastic
+            16 31 p @ positioned 20 10 p @ mobile pwh p @ elastic ;
 : te7.1     s   o @ p @ colliding? 0= abort" te7.1 collision detect" ;
 : te7.2     s   o @ p @ pPreserved
                 o @ position
@@ -125,8 +129,8 @@ variable p
 
 : s         0objects 0elasticity 0mobility 0positionables
             object o ! object p !
-            16 16 o @ positioned 10 20 o @ mobile o @ elastic
-            16 31 p @ positioned 20 10 p @ mobile p @ elastic ;
+            16 16 o @ positioned 10 20 o @ mobile owh o @ elastic
+            16 31 p @ positioned 20 10 p @ mobile pwh p @ elastic ;
 
 : te8.1     s   collided
                 o @ position
@@ -148,8 +152,8 @@ variable #callbacks
 : redist    2drop 1 #callbacks +! ;
 : s         0objects 0elasticity 0mobility 0positionables
             object o ! object p !
-            16 16 o @ positioned 10 20 o @ mobile o @ elastic
-            16 31 p @ positioned 20 10 p @ mobile p @ elastic
+            16 16 o @ positioned 10 20 o @ mobile owh o @ elastic
+            16 31 p @ positioned 20 10 p @ mobile pwh p @ elastic
             ['] redist o @ onCollide ['] redist p @ onCollide
             #callbacks off ;
 
@@ -157,5 +161,5 @@ variable #callbacks
 
 : te9       te9.1 ;
 
-: te    te0 te1 te2 te3 te4 te5 te6 te7 te8 te9 depth .s abort" te: depth" ;
+: te    te0 te1 te2 te3 te4 te5 te6 te7 te8 te9 depth abort" te: depth" ;
 

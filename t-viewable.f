@@ -43,7 +43,8 @@ variable &depth
 : tv0.3     s   123 color $FFFF <> abort" tv0.3 color mismatch" ;
 : tv0.4     s   123 isViewable? 0= abort" tv0.4 visibility mismatch" ;
 : tv0.5     s   124 isViewable? abort" tv0.5 visibility mismatch" ;
-: tv0   tv0.1 tv0.2 tv0.3 tv0.4 tv0.5 ;
+: tv0.6     s   124 unviewable depth abort" tv0.6 depth" ;
+: tv0   tv0.1 tv0.2 tv0.3 tv0.4 tv0.5 tv0.6 ;
 
 \
 \ Exercise object color interface

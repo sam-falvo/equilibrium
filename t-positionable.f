@@ -23,8 +23,9 @@ include positionable
                 31 <> abort" tp0.5 y mismatch"
                 5 <> abort" tp0.5 x mismatch"
                 depth r> - abort" tp0.5 depth" ;
-
-: tp0   tp0.1 tp0.2 tp0.3 tp0.4 tp0.5 ;
+: tp0.6     s   12345 unpositioned  12345 hasPosition?
+                abort" tp0.6: position unexpected" ;
+: tp0   tp0.1 tp0.2 tp0.3 tp0.4 tp0.5 tp0.6 ;
 
 
 : s         0positionables
