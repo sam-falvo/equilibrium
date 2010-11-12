@@ -85,22 +85,18 @@ variable #records
 \ elapsed
 \
 
+: expired? ( i -- )
+  cells delays + @ 1 = ;
+
 : called ( i -- )
-  cells >r r@ delays + @ 1 <> if r> drop exit then
-  r@ foreignKeys + @ r> callbacks + @ execute ;
+  dup expired? 0= if drop exit then
+  cells dup foreignKeys + @ swap callbacks + @ execute ;
 
 : notified ( -- )
   0 begin dup #records @ < while dup called 1+ repeat drop ;
 
-: collapsed ( ofs base -- )
-  over >r + dup cell+ swap /column r> cell+ - move ;
-
-: delisted ( i -- )
-  cells >r r@ foreignKeys collapsed r@ delays collapsed r>
-  callbacks collapsed ;
-
 : -expired ( i -- i )
-  dup cells delays + @ 2 < if dup delisted r> drop then ;
+  dup expired? if dup cells delisted r> drop then ;
 
 : row ( i -- i' )
   -expired 1+ ;
@@ -116,4 +112,5 @@ variable #records
 
 : elapsed ( -- )
   notified compacted tallied ;
+
 

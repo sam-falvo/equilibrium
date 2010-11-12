@@ -57,34 +57,35 @@ variable #records
 : scored ( u fk -- )
   row scores + ! ;
 
-: expired ( fk -- )
-  dup unpositioned dup immobile dup unviewable dup lax destroyed ;
+: cindered ( fk -- )
+  dup unpositioned dup immobile dup unviewable destroyed ;
 
 : +onscreen ( x y -- x y )
-  dup 0 767 within 0= if 2drop r> drop then
+  dup 0 767 within 0= if 2drop r> drop exit then
   over 0 767 within 0= if 2drop r> drop then ;
 
 : _spark ( fk -- )
   position +onscreen plotted ;
 
 : vx ( -- -8 <= vx <= 7 )
-  probability 29 rshift ;
+  probability 28 rshift 8 - ;
 
 : vy ( -- -8 <= vx <= 7 )
-  probability 29 rshift ;
+  probability 28 rshift 8 - ;
 
 : vector ( -- vX vY )
   vx vy ;
 
-: frames ( -- 0 <= n <= 7 )
-  probability 27 rshift abs ;
+: frames ( -- 2 <= n < 34 )
+  probability 27 rshift abs 2 + ;
 
 : spark ( x y -- )
+  objectsFull? if 2drop exit then
   object dup >r positioned
   vector r@ mobile
   ['] _spark r@ viewable
 \ probability $FFFF and r@ colored
-  ['] expired frames r@ punctual
+  ['] cindered frames r@ punctual
   r> drop ;
 
 : centroid ( l r t b -- x y )

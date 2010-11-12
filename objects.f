@@ -9,9 +9,10 @@ mask 1+ constant width
 
 limit mask + width / constant /bitmap
 create bitmap  /bitmap cells allot
+variable #objects
 
 : 0objects ( -- )
-  bitmap /bitmap cells 0 fill ;
+  0 #objects !  bitmap /bitmap cells 0 fill ;
 
 : row ( pk -- a )
   width / cells bitmap + ;
@@ -23,7 +24,7 @@ create bitmap  /bitmap cells allot
   dup row @ swap column and 0= 0= ;
 
 : -bit ( pk -- pk )
-  dup isObject? if exit then
+  dup isObject? if exit then  1 #objects +!
   dup >r row dup @ r@ column or swap !  r> 2r> 2drop ;
 
 : -word ( pk -- pk )
@@ -36,5 +37,9 @@ create bitmap  /bitmap cells allot
   abort" objects.f: Out of objects" ;
 
 : destroyed ( pk -- )
+  -1 #objects +!
   dup row @ over column invert and swap row ! ;
+
+: objectsFull? ( -- f )
+  #objects @ limit >= ;
 
