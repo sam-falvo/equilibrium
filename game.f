@@ -61,25 +61,8 @@ defer _timeup ( fkUnused -- )
 \ Main loop iteration
 \
 
-: d(   s" depth >r" evaluate ; immediate
-: z)   s" depth r> <> z" evaluate ; immediate
-: y)   s" depth r> <> y" evaluate ; immediate
-: x)   s" depth r> <> x" evaluate ; immediate
-: w)   s" depth r> <> w" evaluate ; immediate
-: v)   s" depth r> <> v" evaluate ; immediate
-: u)   s" depth r> <> u" evaluate ; immediate
-: t)   s" depth r> <> t" evaluate ; immediate
-: z     abort" drawn depth" ;
-: y     abort" moved depth" ;
-: x     abort" collided depth" ;
-: w     abort" confined depth" ;
-: v     abort" acted depth" ;
-: u     abort" synced depth" ;
-: t     abort" elapsed depth" ;
-
 : frame ( -- )
-  black d( drawn z) d( moved y) d( collided x) d( confined w)
-  d( acted v) d( synced u) d( elapsed t) ;
+  black drawn moved collided confined acted synced elapsed ;
 
 \
 \ Playfield
